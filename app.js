@@ -39,18 +39,47 @@ var content = canvas.getContext('2d');
 // content.stroke();
 //}
 
+var mouse = {
+    x: undefined,
+    y: undefined
+}
+
+const MAX_RADIUS = 50;
+
+var colorArray = [
+    '#A8DADC',
+    '#457B9D',
+    '#F1FAEE',
+    '#BEE9E8',
+    '#1D3557'
+]
+
+window.addEventListener('mousemove', 
+    function (event) {
+        mouse.x = event.x;
+        mouse.y = event.y;
+})
+
+window.addEventListener('resize', 
+    function () {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+})
+
 function Circle(x, y, dx, dy, radius) {
     this.x = x;
     this.y = y;
     this.dx = dx;
     this.dy = dy;
     this.radius = radius;
+    this.minRadius = radius;
+    this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
 
     this.draw = function () {
         content.beginPath();
         content.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        content.strokeStyle = 'rgba(0, 255, 0, 0.6)';
-        content.stroke();
+        content.fillStyle = this.color;
+        content.fill();
     }
 
     this.update = function () {
@@ -61,17 +90,28 @@ function Circle(x, y, dx, dy, radius) {
         }
         this.x += this.dx;
         this.y += this.dy;
+
+        //interactivity
+        if(mouse.x - this.x < 50 && mouse.x - this.x > -50 
+            && mouse.y - this.y < 50 && mouse.y - this.y > -50
+        ){
+            if (this.radius < MAX_RADIUS) {
+                this.radius += 5;
+            }
+        } else if (this.radius > this.minRadius) {
+            this.radius -= 1;
+        }
     }
 }
 
 var circleArray = [];
 
-for (let index = 0; index < 100; index++) {
+for (let index = 0; index < 1000; index++) {
     var x = Math.random() * (window.innerWidth - radius * 2) + radius;
     var y = Math.random() * (window.innerHeight - radius * 2) + radius;
     var dx = (Math.random() - 0.5) * 10;
     var dy = (Math.random() - 0.5) * 10;
-    var radius = 50;
+    var radius = Math.random() * 4 + 6;
     circleArray.push(new Circle(x, y, dx, dy, radius));
 }
 

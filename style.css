@@ -6,7 +6,7 @@ canvas {
     border: 1px solid black;
 }
 
-.title {
+/* .title {
     position: absolute;
     top: 40%;
     left: 50%;
@@ -15,4 +15,4 @@ canvas {
     font-size: 15vw;
     z-index: 1; 
     font-family: 'Baloo 2', cursive;
-  }
+  } */
