@@ -5,3 +5,14 @@ body {
 canvas {
     border: 1px solid black;
 }
+
+.title {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(0, 255, 0, 0.5);
+    font-size: 15vw;
+    z-index: 1; 
+    font-family: 'Baloo 2', cursive;
+  }
