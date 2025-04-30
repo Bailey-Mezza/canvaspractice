@@ -20,7 +20,7 @@ var colorArray = [
 ]
 
 var gravity = 1;
-var friction = 0.9;
+var friction = 0.99;
 
 //event listeners
 window.addEventListener('mousemove', 
@@ -40,14 +40,14 @@ function randomIntFromRange(min,max) {
     return Math.floor(Math.random() * (max-min+1) + min);
 }
 
-console.log(canvas.height)
 //Objects
-function Circle(x, y, dy, radius) {
+function Circle(x, y, dx, dy, radius) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
     this.dy = dy;
+    this.dx = dx;
 
     this.draw = function () {
         content.beginPath();
@@ -67,23 +67,37 @@ function Circle(x, y, dy, radius) {
             // console.log(this.y);
             // console.log(this.dy);
         }
-        console.log(this.dy);
+        //console.log(this.dy);
+        if (this.x + this.radius + this.dx > canvas.width || this.x-radius <= 0) {
+            this.dx = -this.dy;
+        }
+
         this.y += this.dy;
+        this.x += this.dx;
         this.draw();
     }
 }
 
-var circle;
+var circleArray = [];
 //Implementation
 function init() {
-    circle = new Circle(canvas.width / 2, canvas.height / 2, 2, 30)
+    for (let index = 0; index < 1000; index++) {
+        var radius = randomIntFromRange(5,35);
+        var x = randomIntFromRange(30, canvas.width - radius);
+        var y = randomIntFromRange(0, canvas.height-200);
+        var dy = randomIntFromRange(1,4);
+        var dx = randomIntFromRange(-2, 2);
+        circleArray.push(new Circle(x, y, dx, dy, radius));
+    }
 }
 
 //Animate loop
 function animate() {
-    requestAnimationFrame(animate);
     content.clearRect(0, 0, innerWidth, innerHeight);
-    circle.update();
+    requestAnimationFrame(animate);
+    circleArray.forEach(circle => {
+        circle.update();
+    });
 }
 
 init();
