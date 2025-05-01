@@ -44,48 +44,130 @@ function getDistance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
 }
 
+function rotate (velocity, angle) {
+    const rotatedVelocities = {
+        x: velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle),
+        y: velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle)
+    }
+
+    return rotatedVelocities;
+}
+
+function resolveCollision(particle, otherParticle) {
+    const xVelocityDiff = particle.velocity.x - otherParticle.velocity.x;
+    const yVelocityDiff = particle.velocity.y - otherParticle.velocity.y;
+
+    const xDist = otherParticle.x - particle.x;
+    const yDist = otherParticle.y - particle.y;
+
+    if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0){
+        const angle = -Math.atan2(otherParticle.y - particle.y, otherParticle.x - particle.x);
+
+        const m1 = particle.mass;
+        const m2 = otherParticle.mass;
+
+        const u1 = rotate(particle.velocity, angle);
+        const u2 = rotate(otherParticle.velocity, angle);
+
+        const v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
+        const v2 = { x: u2.x * (m2 - m1) / (m1 + m2) + u1.x * 2 * m1 / (m1 + m2), y: u2.y };
+
+        const vFinal1 = rotate(v1, -angle);
+        const vFinal2 = rotate(v2, -angle);
+
+        particle.velocity.x = vFinal1.x;
+        particle.velocity.y = vFinal1.y;
+
+        otherParticle.velocity.x = vFinal2.x;
+        otherParticle.velocity.y = vFinal2.y;
+    }
+    
+}
+
 //Objects
-function Circle(x, y, radius, color) {
+function Particle(x, y, radius) {
     this.x = x;
     this.y = y;
+    this.velocity = {
+        x: randomIntFromRange(-0.5, 0.5),
+        y: randomIntFromRange(-0.5, 0.5)
+    }
     this.radius = radius;
-    this.color = color;
+    this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+    this.mass = 1;
 
-    this.draw = function () {
+    this.draw = () => {
         content.beginPath();
         content.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        content.fillStyle = this.color;
-        content.fill();
+        content.strokeStyle = this.color;
+        content.stroke();
         content.closePath();
     }
 
-    this.update = function () {
+    this.update = particles => {
         this.draw();
+        
+        for (let i = 0; i < particles.length; i++) {
+            if (this === particles[i]){ continue; }
+            if (getDistance(this.x, this.y, particles[i].x, particles[i].y) - this.radius * 2 < 0) {
+                resolveCollision(this, particles[i]);
+            }
+        }
+
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+
+        if (this.x + radius > innerWidth || this.x - radius < 0) {
+            this.velocity.x = -this.velocity.x;
+        } else if (this.y + radius > innerHeight || this.y - radius < 0) {
+            this.velocity.y = -this.velocity.y;
+        }
     }
 }
 
 //Implementation
-let circle1;
-let circle2;
+let particles = [];
 function init() {
-    circle1 = new Circle(300, 300, 100, 'black');
-    circle2 = new Circle(undefined, undefined, 30, 'red');
+    for (let i = 0; i < 200; i++) {
+        let x, y;
+        let radius = 10;
+        let validPosition = false;
+
+        while (!validPosition) {
+            x = randomIntFromRange(radius, innerWidth - radius);
+            y = randomIntFromRange(radius, innerHeight - radius);
+
+            validPosition = true;
+            for (let j = 0; j < particles.length; j++) {
+                if (getDistance(x, y, particles[j].x, particles[j].y) - radius * 2 < 5) {
+                    validPosition = false;
+                    break;
+                }
+            }
+        }
+
+        particles.push(new Particle(x, y, radius))
+    }
 }
 
 //Animate loop
 function animate() {
     requestAnimationFrame(animate);
     content.clearRect(0, 0, innerWidth, innerHeight);
-    circle1.update();
-    circle2.x = mouse.x;
-    circle2.y = mouse.y;
-    circle2.update();
+    particles.forEach(particle => {
+        particle.update(particles);
+    });
 
-    if (getDistance(circle1.x, circle1.y, circle2.x, circle2.y) < circle1.radius + circle2.radius){
-        circle1.color = 'red';
-    } else {
-        circle1.color = 'black';
-    }
+    // circle1.update();
+    // circle2.x = mouse.x;
+    // circle2.y = mouse.y;
+    // circle2.update();
+
+    // if (getDistance(circle1.x, circle1.y, circle2.x, circle2.y) < circle1.radius + circle2.radius){
+    //     circle1.color = 'red';
+    // } else {
+    //     circle1.color = 'black';
+    // }
 }
 
 init();
