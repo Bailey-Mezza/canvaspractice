@@ -14,7 +14,6 @@ var mouse = {
 var colorArray = [
     '#A8DADC',
     '#457B9D',
-    '#F1FAEE',
     '#BEE9E8',
     '#1D3557'
 ]

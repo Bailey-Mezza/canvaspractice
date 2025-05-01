@@ -14,10 +14,11 @@ var mouse = {
 var colorArray = [
     '#A8DADC',
     '#457B9D',
-    '#F1FAEE',
     '#BEE9E8',
     '#1D3557'
 ]
+
+var gravity = 1;
 
 //event listeners
 window.addEventListener('mousemove', 
@@ -69,6 +70,7 @@ function resolveCollision(particle, otherParticle) {
         const u1 = rotate(particle.velocity, angle);
         const u2 = rotate(otherParticle.velocity, angle);
 
+        //One-dimensional Newtonian equation rotated by angle for 2 dimensions
         const v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
         const v2 = { x: u2.x * (m2 - m1) / (m1 + m2) + u1.x * 2 * m1 / (m1 + m2), y: u2.y };
 
@@ -89,16 +91,22 @@ function Particle(x, y, radius) {
     this.x = x;
     this.y = y;
     this.velocity = {
-        x: randomIntFromRange(-0.5, 0.5),
-        y: randomIntFromRange(-0.5, 0.5)
+        x: randomIntFromRange(-2.5, 2.5),
+        y: randomIntFromRange(-2.5, 2.5)
     }
     this.radius = radius;
     this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
     this.mass = 1;
+    this.opacity = 0;
 
     this.draw = () => {
         content.beginPath();
         content.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        content.save();
+        content.globalAlpha = this.opacity;
+        content.fillStyle = this.color;
+        content.fill();
+        content.restore();
         content.strokeStyle = this.color;
         content.stroke();
         content.closePath();
@@ -122,13 +130,34 @@ function Particle(x, y, radius) {
         } else if (this.y + radius > innerHeight || this.y - radius < 0) {
             this.velocity.y = -this.velocity.y;
         }
+
+        // Gravity implemented, doesn't work fully and looks abosuletly chaotic
+        // if (this.y + this.radius > canvas.height && this.velocity.y > 0) {
+        //     this.velocity.y = -this.velocity.y;
+        // } else if (this.y + this.radius > canvas.height && Math.abs(this.velocity.y) < 1) {
+        //     this.velocity.y = 0;
+        // } else {
+        //     this.velocity.y += gravity;
+        // }
+        // if (this.x + this.radius + this.velocity.x > canvas.width || this.x-radius <= 0) {
+        //     this.velocity.x = -this.velocity.x;
+        // }
+
+        if (getDistance(mouse.x, mouse.y, this.x, this.y) < 80){
+            this.opacity += 0.02;
+            this.opacity = Math.min(0.5, this.opacity)
+        } else if (this.opacity > 0){
+            this.opacity -= 0.02;
+            this.opacity = Math.max(0, this.opacity);
+        }
+
     }
 }
 
 //Implementation
 let particles = [];
 function init() {
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 300; i++) {
         let x, y;
         let radius = 10;
         let validPosition = false;
