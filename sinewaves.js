@@ -4,6 +4,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 var content = canvas.getContext('2d');
+content.fillStyle = '#FFF'
+content.fillRect(0, 0, canvas.width, canvas.height);
 
 //variables
 var mouse = {
@@ -37,18 +39,26 @@ function randomIntFromRange(min,max) {
 }
 
 //Objects
-function Object(x, y, radius) {
-    this.x = x;
+function Wave(y, length, amplitude, frequency) {
     this.y = y;
-    this.radius = radius;
-    this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+    this.length = length;
+    this.amplitude = amplitude;
+    this.frequency = frequency;
+    this.color = '#20B2AA';
+    this.increment = frequency
 
     this.draw = function () {
         content.beginPath();
-        content.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        content.fillStyle = this.color;
-        content.fill();
+        content.moveTo(0, canvas.height/2)
+        for (let index = 0; index < canvas.width; index++) {
+            content.lineTo(index, this.y + Math.sin(index * this.length + this.increment)
+             * this.amplitude * Math.sin(this.increment));
+        }
+
+        content.strokeStyle = this.color;
+        content.stroke();
         content.closePath();
+        this.increment += this.frequency;
     }
 
     this.update = function () {
@@ -56,24 +66,25 @@ function Object(x, y, radius) {
     }
 }
 
-let objects;
+let waves;
 //Implementation
 function init() {
-    objects = [];
+    waves = [];
 
-    for (let index = 0; index < 10; index++) {
-        //objects.push(new Object())
-    }
+    waves.push(new Wave(canvas.height/2, 0.01, 100, 0.01));
+    // waves.push(new Wave(canvas.height/4, 0.01, 100, 0.01));
+    // waves.push(new Wave((canvas.height/4)*3, 0.01, 100, 0.01));
 }
 
 //Animate loop
 function animate() {
     requestAnimationFrame(animate);
-    content.clearRect(0, 0, innerWidth, innerHeight);
+    content.fillStyle = 'rgba(0, 0, 0, 0.02)'
+    content.fillRect(0, 0, innerWidth, innerHeight);
 
-    // objects.forEach(object => {
-    //     object.update;
-    // });
+    waves.forEach(wave => {
+        wave.update();
+    });
 }
 
 init();
