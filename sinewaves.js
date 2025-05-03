@@ -71,7 +71,7 @@ let waves;
 function init() {
     waves = [];
 
-    waves.push(new Wave(canvas.height/2, 0.01, 100, 0.01));
+    waves.push(new Wave(canvas.height/2, 0.02, 200, 0.02));
     // waves.push(new Wave(canvas.height/4, 0.01, 100, 0.01));
     // waves.push(new Wave((canvas.height/4)*3, 0.01, 100, 0.01));
 }
