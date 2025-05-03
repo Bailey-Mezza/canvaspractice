@@ -11,7 +11,7 @@ var mouse = {
     y: innerHeight / 2
 }
 
-const gravity = 0.01;
+const gravity = 0.005;
 const friction = 0.99;
 
 //event listeners
@@ -32,25 +32,30 @@ class Particle {
         this.x = x;
         this.y = y;
         this.radius = radius;
-        this.color = '#FF0000';
+        this.color = `hsl(${Math.random() * 360}, 50%, 50%)`;
         this.velocity = velocity;
+        this.alpha = 1;
     }
 
     draw() {
+        content.save();
+        content.globalAlpha = this.alpha;
         content.beginPath();
         content.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
         content.fillStyle = this.color;
         content.fill();
         content.closePath();
+        content.restore();
     }
 
     update() {
         this.draw();
-        // this.velocity.x *= friction;
-        // this.velocity.y *= friction;
+        this.velocity.x *= friction;
+        this.velocity.y *= friction;
         this.velocity.y += gravity;
         this.x += this.velocity.x;
         this.y += this.velocity.y;
+        this.alpha -= 0.005;
     }
 }
 
@@ -69,13 +74,14 @@ addEventListener('click',
         mouse.x = event.clientX;
         mouse.y = event.clientY;
 
-        const particleCount = 200;
+        const particleCount = 500;
         const angleIncrement = (Math.PI * 2) / particleCount;
+        const power = 30;
 
         for (let index = 0; index < particleCount; index++) {
             particles.push(new Particle(mouse.x, mouse.y, 3, {
-                x: Math.cos(angleIncrement * index) * Math.random(),
-                y: Math.sin(angleIncrement * index) * Math.random()
+                x: Math.cos(angleIncrement * index) * Math.random() * power,
+                y: Math.sin(angleIncrement * index) * Math.random() * power
             }))
         }
     })
@@ -86,8 +92,12 @@ function animate() {
     content.fillStyle = 'rgba(0, 0, 0, 0.05)';
     content.fillRect(0, 0, innerWidth, innerHeight);
 
-    particles.forEach(particle => {
-        particle.update();
+    particles.forEach((particle, i) => {
+        if (particle.alpha > 0) {
+            particle.update();
+        } else {
+            particles.splice(i, 1);
+        }
     });
 }
 
