@@ -4,6 +4,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 var content = canvas.getContext('2d');
+content.fillStyle = '#FFF'
+content.fillRect(0, 0, canvas.width, canvas.height);
 
 //variables
 var mouse = {
@@ -107,7 +109,7 @@ function animate() {
         alpha -= 0.05;
         radians += 0.001;
     } else if (!mouseDown && alpha < 1) {
-        alpha += 0.01;
+        alpha += 0.05;
         radians -= 0.001;
     }
     // console.log(radians)
