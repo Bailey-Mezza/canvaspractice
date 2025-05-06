@@ -19,11 +19,13 @@ var colorArray = [
 ]
 
 //event listeners
-addEventListener('mousemove',
+addEventListener('click',
     event => {
         mouse.x = event.x;
         mouse.y = event.y;
-    })
+        console.log(mouse.x);
+    }
+)
 
 addEventListener('resize',
     () => {
@@ -32,17 +34,20 @@ addEventListener('resize',
     })
 
 //Utility Functions
-function randomIntFromRange(min, max){
+function randomIntFromRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 //Objects
-class Object {
+class Particle {
     constructor(x, y, radius) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+        this.radians = Math.random() * Math.PI * 2;
+        this.velocity = 0.05;
+
     }
 
     draw() {
@@ -58,24 +63,37 @@ class Object {
     }
 }
 
-let objects;
+let particles;
 //Implementation
 function init() {
-    objects = [];
+    particles = [];
 
-    for (let index = 0; index < 10; index++) {
-        //objects.push(new Object())
+    const canvasWidth = canvas.width + 300;
+    const canvasHeight = canvas.height + 300;
+    for (let index = 0; index < 1000; index++) {
+        const x = randomIntFromRange(-canvasWidth/2, canvasWidth/2);
+        const y = randomIntFromRange(-canvasHeight/2, canvasHeight/2);
+        const radius = randomIntFromRange(0, 2);
+        particles.push(new Particle(x, y, radius));
     }
 }
 
 //Animate loop
+let radians = 0;
 function animate() {
     requestAnimationFrame(animate);
-    content.clearRect(0, 0, innerWidth, innerHeight);
+    content.fillStyle = 'rgba(10, 10, 10, 0.2)';
+    content.fillRect(0, 0, canvas.width, canvas.height);
 
-    // objects.forEach(object => {
-    //     object.update();
-    // });
+    content.save();
+    content.translate(canvas.width/2, canvas.height/2)
+    content.rotate(radians);
+    particles.forEach(particle => {
+        particle.update();
+    });
+    content.restore();
+    radians += 0.001;
+    // console.log(radians)
 }
 
 init();
