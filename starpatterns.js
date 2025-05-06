@@ -18,12 +18,19 @@ var colorArray = [
     '#1D3557'
 ]
 
+let radians = 0;
+let alpha = 1;
+let mouseDown = false;
 //event listeners
-addEventListener('click',
-    event => {
-        mouse.x = event.x;
-        mouse.y = event.y;
-        console.log(mouse.x);
+addEventListener('mousedown',
+    () => {
+        mouseDown = true;
+    }
+)
+
+addEventListener('mouseup',
+    () => {
+        mouseDown = false;
     }
 )
 
@@ -53,6 +60,8 @@ class Particle {
     draw() {
         content.beginPath();
         content.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        content.shadowColor = this.color;
+        content.shadowBlur = 15;
         content.fillStyle = this.color;
         content.fill();
         content.closePath();
@@ -68,31 +77,39 @@ let particles;
 function init() {
     particles = [];
 
-    const canvasWidth = canvas.width + 300;
-    const canvasHeight = canvas.height + 300;
+    const canvasWidth = canvas.width + 1000;
+    const canvasHeight = canvas.height + 1000;
     for (let index = 0; index < 1000; index++) {
-        const x = randomIntFromRange(-canvasWidth/2, canvasWidth/2);
-        const y = randomIntFromRange(-canvasHeight/2, canvasHeight/2);
+        const x = randomIntFromRange(-canvasWidth / 2, canvasWidth / 2);
+        const y = randomIntFromRange(-canvasHeight / 2, canvasHeight / 2);
         const radius = randomIntFromRange(0, 2);
         particles.push(new Particle(x, y, radius));
     }
 }
 
 //Animate loop
-let radians = 0;
+
 function animate() {
     requestAnimationFrame(animate);
-    content.fillStyle = 'rgba(10, 10, 10, 0.2)';
+    content.fillStyle = `rgba(10, 10, 10, ${alpha})`;
     content.fillRect(0, 0, canvas.width, canvas.height);
 
     content.save();
-    content.translate(canvas.width/2, canvas.height/2)
+    content.translate(canvas.width / 2, canvas.height / 2)
     content.rotate(radians);
     particles.forEach(particle => {
         particle.update();
     });
     content.restore();
-    radians += 0.001;
+    radians += 0.005;
+
+    if (mouseDown && alpha >= 0.05) {
+        alpha -= 0.05;
+        radians += 0.001;
+    } else if (!mouseDown && alpha < 1) {
+        alpha += 0.01;
+        radians -= 0.001;
+    }
     // console.log(radians)
 }
 
