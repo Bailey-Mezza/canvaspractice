@@ -46,7 +46,7 @@ addEventListener("keyup", function (e) {
         vxr = 0;
     } if (e.code == 'KeyA') {
         vxl = 0;
-    } 
+    }
 });
 
 //Utility Functions
@@ -75,20 +75,30 @@ class Player {
         this.draw();
         this.x += (vxr || 0) + (vxl || 0);
 
+        if (this.x + this.radius <= 0) {
+            this.x = 0 + this.radius;
+            vxr = -vxr;
+            vxl = -vxl;
+        } else if (this.x + this.radius >= canvas.width) {
+            this.x = canvas.width - this.radius
+            vxr = -vxr;
+            vxl = -vxl;
+        }
+
         velocity += gravity
 
         this.y += (vy || 0) + gravity + velocity;
-        
-        const groundlevel = canvas.height-100-this.radius
+
+        const groundlevel = canvas.height - 100 - this.radius
 
         if (this.y >= groundlevel) {
             this.y = groundlevel;
             velocity *= -friction;
             vy = 0;
-        if (Math.abs(velocity) < 1) {
-            velocity = 0;
-            grounded = true;
-        }
+            if (Math.abs(velocity) < 1) {
+                velocity = 0;
+                grounded = true;
+            }
 
         }
     }
@@ -121,11 +131,15 @@ function init() {
     obstacles = [];
 
     for (let index = 0; index < 1; index++) {
-        players.push(new Player(canvas.width / 2, canvas.height -150, 30));
+        players.push(new Player(canvas.width / 2, canvas.height - 150, 30));
     }
 
-    for (let index = 0; index < 1; index++) {
-        obstacles.push(new Obstacle(0, canvas.height - 100, canvas.width, 100));
+    obstacles.push(new Obstacle(0, canvas.height - 100, canvas.width, 100));//floor
+
+    for (let index = 0; index < 2; index++) {
+        x = randomIntFromRange(100, canvas.width - 100);
+        y = randomIntFromRange(100, canvas.height - 100);
+        obstacles.push(new Obstacle(x, y, 100, 100));
     }
 }
 
