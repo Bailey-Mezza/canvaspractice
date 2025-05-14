@@ -111,10 +111,22 @@ function init() {
 
     player = new Player(canvas.width / 2, canvas.height / 2, 20);
 
+    spawnEnemies()
+}
+
+function spawnEnemies() {
     setInterval(() => {
-        const x = randomIntFromRange(0, canvas.width);
-        const y = randomIntFromRange(0, canvas.height);
         const radius = randomIntFromRange(10, 50);
+        let x, y;
+
+        if (Math.random() < 0.5) {
+            x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+            y = Math.random() * canvas.height;
+        } else {
+            x = Math.random() * canvas.height;
+            y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
+        }
+
         const angle = Math.atan2(y - canvas.height / 2, x - canvas.width / 2)
         const velocity = {
             x: -Math.cos(angle),
@@ -138,19 +150,49 @@ addEventListener('click',
     })
 
 //Animate loop
+let animationId;
 function animate() {
-    requestAnimationFrame(animate);
+    animationId = requestAnimationFrame(animate);
     content.fillStyle = 'rgba(0,0,0, 0.5)'
     content.fillRect(0, 0, innerWidth, innerHeight);
 
     player.update();
 
-    projectiles.forEach(projectile => {
+    projectiles.forEach((projectile, index) => {
         projectile.update();
+
+        if (projectile.x + projectile.radius < 0 || projectile.x - projectile.radius > canvas.width || projectile.y + projectile.radius < 0 || projectile.x - projectile.radius > canvas.height){
+            projectiles.splice(index, 1);
+        }
     });
 
-    enemies.forEach(enemy => {
+    enemies.forEach((enemy, index) => {
         enemy.update();
+        const dist =  Math.hypot(player.x - enemy.x, player.y - enemy.y);
+                   
+        if (dist - enemy.radius - player.radius < 1) {
+            cancelAnimationFrame(animationId);
+        }
+
+        projectiles.forEach((projectile, projectileIndex) => {
+           const dist =  Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+
+           if (dist - enemy.radius - projectile.radius < 1) {
+            if (enemy.radius > 20) {
+                gsap.to(enemy, {
+                    radius: enemy.radius - 10
+                })
+                setTimeout(() => {
+                projectiles.splice(projectileIndex, 1);
+            }, 0)
+            } else {
+                setTimeout(() => {
+                projectiles.splice(projectileIndex, 1);
+                enemies.splice(index, 1);
+            }, 0)
+            }
+           }
+        })
     });
 }
 
