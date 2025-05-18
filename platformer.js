@@ -75,7 +75,7 @@ class Player {
         this.draw();
         this.x += (vxr || 0) + (vxl || 0);
 
-        if (this.x + this.radius <= 0) {
+        if (this.x - this.radius <= 0) {
             this.x = 0 + this.radius;
             vxr = -vxr;
             vxl = -vxl;
