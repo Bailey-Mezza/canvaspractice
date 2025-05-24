@@ -19,7 +19,7 @@ var colorArray = [
 ]
 
 var gravity = 1;
-var friction = 0.99;
+var friction = 0.2;
 
 //event listeners
 window.addEventListener('mousemove', 
