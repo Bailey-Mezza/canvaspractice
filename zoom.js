@@ -35,7 +35,7 @@ window.addEventListener('resize',
     })
 
 window.addEventListener('keydown', function (event) {
-    const panSpeed = 20 / scale; // speed adjusted to zoom level
+    const panSpeed = 20 / scale; 
 
     switch (event.code) {
         case 'ArrowUp':
@@ -61,7 +61,6 @@ window.addEventListener('keydown', function (event) {
             scale = Math.max(scale - 0.05, 0.1);
             break;
     }
-    console.log(scale);
 });
 
 
