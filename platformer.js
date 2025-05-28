@@ -18,6 +18,10 @@ var colorArray = [
     '#1D3557'
 ]
 
+let draggingObstacle = null;
+let offsetX = 0;
+let offsetY = 0;
+
 let vxr, vxl, vy, velocity = 0, gravity = 1, friction = 0.2;
 let grounded = false;
 
@@ -48,6 +52,39 @@ addEventListener("keyup", function (e) {
         vxl = 0;
     }
 });
+
+canvas.addEventListener('mousedown', function (e) {
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+
+    // check if user clicked on any obstacle
+    for (let i = 1; i < obstacles.length; i++) { // skip floor at index 0
+        const obs = obstacles[i];
+        if (
+            mouseX >= obs.x &&
+            mouseX <= obs.x + obs.height &&
+            mouseY >= obs.y &&
+            mouseY <= obs.y + obs.width
+        ) {
+            draggingObstacle = obs;
+            offsetX = mouseX - obs.x;
+            offsetY = mouseY - obs.y;
+            break;
+        }
+    }
+});
+
+canvas.addEventListener('mousemove', function (e) {
+    if (draggingObstacle) {
+        draggingObstacle.x = e.clientX - offsetX;
+        draggingObstacle.y = e.clientY - offsetY;
+    }
+});
+
+canvas.addEventListener('mouseup', function () {
+    draggingObstacle = null;
+});
+
 
 //Utility Functions
 function randomIntFromRange(min, max) {
@@ -130,11 +167,38 @@ class Obstacle {
     }
 }
 
-// isOnPlatform = (player, obstacle) => {
-//     if (obstacle.position.x + obstacle.width > ) {
-        
-//     }
-// }
+function isOnPlatform() {
+    grounded = false; // reset each frame
+
+    players.forEach(player => {
+        obstacles.forEach(obstacle => {
+            const playerBottom = player.y + player.radius;
+            const playerTop = player.y - player.radius;
+            const playerLeft = player.x - player.radius;
+            const playerRight = player.x + player.radius;
+
+            const obsTop = obstacle.y;
+            const obsBottom = obstacle.y + obstacle.width;
+            const obsLeft = obstacle.x;
+            const obsRight = obstacle.x + obstacle.height;
+
+            // check if player's bottom is touching obstacle's top and horizontal overlap
+            const isLandingOnTop = playerBottom >= obsTop &&
+                                    playerBottom <= obsTop + 10 &&
+                                    playerRight >= obsLeft &&
+                                    playerLeft <= obsRight &&
+                                    velocity >= 0;
+
+            if (isLandingOnTop) {
+                player.y = obsTop - player.radius;
+                velocity = 0;
+                vy = 0;
+                grounded = true;
+            }
+        });
+    });
+}
+
 
 let players;
 let obstacles;
